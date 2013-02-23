@@ -13,6 +13,7 @@
       */
       private static $ajax = FALSE;
       
+      
       private static $page = '';
       
       /**
@@ -33,6 +34,7 @@
                             <div class="tabrow">
                                 <div style="overflow:auto">
                                     <div class="tabrowheader headingplain">'.$heading.'</div>
+                                    
                                     <div class="tabrowactionbox">
                                         <div class="successmsg"><span>Changes Saved</span></div>
                                         <div class="tabrowactionbutton">
@@ -77,21 +79,31 @@
       * @param mixed $footer : Footer of the box (Plain Text)
       * @param mixed $add : Array : text and link to be created at top right of title.
       */
-      function getcmsbox($title, $body, $footer="", $add = ""){
+      function getcmsbox($title, $body, $footer="", $add = "", $breadcrumbs = ""){
           $addnew = '';
           $class = '';
+          
           if(is_array($add)){
               foreach($add as $k=>$v){
-                  $addnew .= '<a href="'.$v.'" style="float:right;">'.$k.'</a>';
+                  $addnew .= '<a class="cmsbox_addbut" href="'.$v.'" style="float:right; font-size:17px; margin-left:8px;">'.$k.'</a>';
               }
           }
           else{
               $class = $add;
           }
+          if($breadcrumbs != ""){
+              $breadcrumbs = '<div class="breadcrumbs">'.$breadcrumbs.'</div>';
+          }
           $frame = '
-                <div class="innerbox '.$class.'">
+           
+                <div class="innerbox'.$class1.$class.'">
+                <div class="heading">
+                        '.$title.'
+                        '.$breadcrumbs.'
+                        '.$addnew.'
+                    </div>
                 <div>
-                    <div class="heading">'.$title.$addnew.'</div>
+                    
                     <ul class="tabdata">
                         ';
           if(is_array($body)){
@@ -116,22 +128,21 @@
           return $frame;
       }
       
-      function getformfields($label, $type, $name, $help = "abc", $value = "", $placeholder = ""){
+      function getformfields($label, $type, $name, $help = "abc", $value = "", $placeholder = "", $onclick=""){
           $c1 = '<label for="'.$name.'">'.$label.'</label>';
           $c2 = ':';
           if($type == 'text' || $type == 'password'){
+              if($name=='mobile'){
+              $c3 = '<input type="'.$type.'" class="clview_input showhelp" name="'.$name.'" id="'.$name.'" value="'.$value.'" maxlength="10" placeholder="'.$placeholder.'" >';   
+              }else{
               $c3 = '<input type="'.$type.'" class="clview_input showhelp" name="'.$name.'" id="'.$name.'" value="'.$value.'" placeholder="'.$placeholder.'" >';
+              }
           }
           elseif($type == 'select'){
-              $default = '';
-              if(isset($value['default'])){
-                  $default = $value['default'];
-                  unset($value['default']);
-              }
               $c3 = '<select name="'.$name.'"  class="clview_input">';
               foreach($value as $k => $v){
                   $c3 .= '<option ';
-                  if($k==$default){
+                  if($k==1){
                       $c3 .= 'selected="selected"';
                   }
                   $c3 .= ' value="'.$k.'">'.$v.'</option>';
@@ -143,9 +154,11 @@
               $c2 = '';
               $c3 = '<input type="submit" class="button" value="'.$value.'" name="'.$name.'" id="'.$name.'">';
               $help = 'Click to Submit';
-          }
-          elseif($type == 'textarea'){
+          }elseif($type == 'textarea'){
               $c3 = '<textarea class="clview_input showhelp" name="'.$name.'" id="'.$name.'">'.$value.'</textarea>';
+          }
+          elseif($type == 'button' && $name=='cancel'){
+              $c3 ='<input type="button" class="button" name="'.$name.'" value="'.$value.'" onclick="'.$onclick.'">';
           }
           else{
               $c3 = 'Input Type not defined.';
@@ -199,11 +212,8 @@
           global $user;
           $r = '<ul class="'.$type.'"  id="leftsubnav">';
           $p = '';
-          if($user->getusertype() == 'parent' && get('studentid')){
-              $p = '&studentid='.$_GET['studentid'];
-          }
           foreach($pages as $k => $v){
-              $r .= '<li><a href="?page='.$pageid.'&type='.$type.'&subpage='.$k.$p.'" ';
+              $r .= '<li><a href="?page='.$pageid.'&type='.$type.'&subpage='.$k.'" ';
               if($k == $subpage){
                   $r .= 'class="selected" ';
               }
@@ -288,24 +298,19 @@
       function getloginbar(){
           global $user, $notify;
           if($user->iflogin()){
-              $acc_type = strtoupper($user->getusertype().' Account');
-              $name = '<b>'.$user->getfullname().'</b>';
+              $acc_type = 'Admin Account';
+              $name = '<span style="font-size:15px; font-weight:bold;">'.$user->getfullname().'</span>';
               $settings = '<a href="?page=homepage&type=subnav&subpage=profiles">Settings</a>';
-              $logout = '<a href="?logout">Logout</a>';
+              $logout = '<a href=?logout>Logout</a>';
               $d = '
               <section id="logininfobar">
-                        <div style="font-size:15px; float:left;padding:3px;">'.$name.'</div>
+                        <div style="font-size:18px; font-weight:lighter; float:left;padding:3px;">'.$acc_type.'&nbsp;|&nbsp;'.$name.'</div>
                         <ul>
                             <li><a href="index.php">Home</a></li>
                             <li>'.$settings.'</li>
                             <li>'.$logout.'</li>
                         </ul>
                     </section>
-                    <style>
-                        body{
-                            margin-top: 35px;
-                        }
-                    </style>
                     ';
               return $d;
           }
@@ -474,6 +479,9 @@
                   ["'.$examname[$k].'", '.$max[$k].', '.$current[$k].', '.$min[$k].'],';
               }
           }
+          
+          echo '<script type="text/javascript">alert("'.$js.'");</script>';
+          
           if($grapname == ''){
               $grapname = 'Student Performance Graph';
               $details = '<p>This graph represents the performance of the students according to the marks achieved by him in respective exams.</p>
@@ -644,217 +652,24 @@
           return $this->getcmsbox('Change Username', $d, 'You can set your email id as username. So that you can remember it easily.');
       }
       
-      function inst_box($page, $class_name, $array_of_sections, $senderid){
-        global $db;
-        $sec = '';
-        foreach($array_of_sections as $sec_name=>$count){
-            $sec .= '<div class="count1"> 
-                       <div class="total_students">'.$count.'</div>
-                       <div class="section">'.$sec_name.'</div>
-                    </div>';
-        }
-        if(strlen($sec) < 10){
-            $sec = '-';
-        }
-        $box='<div style="float : left; padding-left:25px">
-              <div class="main">                                                      
-                    <div class="top"> 
-                  
-                        <div class="nameofclass">'.$class_name.'</div>
- 
-                        <div class="styled-select">
-                                <a href="#" class="action_menu">Edit</a><!--do not change the link -->
-                                <ul class="action_menu_list">
-                                    <li><a href="?page=homepage&type=classes&subpage='.$page.'" class="links">Edit</a></li>
-                                    <li><a href="?page=homepage&type=classes&subpage='.$page.'" onclick="return confirm(\'Are you sure you want to delete?\')" class="links">Delete</a></li>
-                                </ul>
-                        </div>                       
-                    </div><!--End of Top Div-->
-                    
-                    <div class="middle">
-                    '.$senderid.'
-                    </div><!--End of Middle Div-->
-                    
-                    <div class="bottom">
-                        '.$sec.'  
-                    </div>
-                </div><!--End of Main Div-->
-                </div>
-                ';
-        return $box; 
-     
-    }
-      
-      function classesbox($page, $class_name, $array_of_sections, $id ){
-        global $db;
-        $sec = '';
-        foreach($array_of_sections as $cl_id=>$sec_name){
-            $re=$db->querydb("SELECT * FROM bt_st_info WHERE inst_id = '".$id."' AND class_v2='".$cl_id."'");
-            //class_v2 coumn in bt_st_info holds value of class_id from bt_classes_v2
-            $sec .= '<a href="index.php?page=homepage&subpage='.$page.'&class='.$cl_id.'" class="links">
-                        <div class="count"> 
-                           <div class="total_students">'.$re->num_rows.'</div>
-                           <div class="section">'.$sec_name.'</div>
-                        </div>
-                    </a>';
-        }
-        if(strlen($sec) < 10){
-            $sec = '-';
-        }
-        $box='<div style="float : left; padding-left:25px">
-              <div class="main">                                                      
-                    <div class="top"> 
-                  
-                        <div class="nameofclass">'.$class_name.'</div>
- 
-                        <div class="styled-select">
-                                <a href="#" class="action_menu">Edit</a><!--do not change the link -->
-                                <ul class="action_menu_list">
-                                    <li><a href="?page=homepage&type=classes&subpage='.$page.'&class_name='.$class_name.'&editclass=true" class="links">Edit</a></li>
-                                    <li><a href="?page=homepage&type=classes&subpage='.$page.'&class_name='.$class_name.'&deleteclass=true" class="links">Delete</a></li>
-                                </ul>
-                        </div>                       
-                    </div><!--End of Top Div-->
-                    
-                    <div class="middle">
-                    Session 2011 - 2012
-                    </div><!--End of Middle Div-->
-                    
-                    <div class="bottom">
-                        '.$sec.'  
-                    </div>
-                    <div class="updates">
-                        <div class="updates_row" id="blink_updates"> <strong><font color="#454545">Parent Teacher meeting is held on 21 nov. 2012.</font></strong> </div>
-                    </div><!--End of Bottom Div-->
-                    
-                </div><!--End of Main Div-->
-                </div>
-                ';
-        return $box; 
-     
-    }
-      
-      function getstudentsrow($page, $id, $clid, $student, $father, $rollno, $index){
-        global $inst_obj, $user;
-        $section=$inst_obj->getsection($user->getid(), $clid);
-          
-          //temp code will be removed after updating roll numbers in database.
-          if(ctype_digit($rollno)){
-              $temp_rollno=$rollno;
-          }else{
-              $temp_sec=substr($rollno, 0, 1);
-              $temp_rollno=str_replace($temp_sec.'.', "", $rollno); 
-          }
-          
-          
-          return '
-           <div class="student_box">
-                <div>
-                    <div class="each_row">      
-                        <div class="rollno_section">
-                        '.$temp_rollno.' &nbsp;<small>'.$section.'</small>
-                        </div>
-                        <div class="student_name">'.$student.'</div>
-                        <div class="styled-select">
-                            <a href="#" class="action_menu">Edit</a>
-                            <ul class="action_menu_list">
-                                <li><a href="index.php?page=homepage&subpage='.$page.'&class='.$index.'&sid='.$id.'&info=true" class="links">Info</a></li>
-                                <li><a href="index.php?page=homepage&subpage='.$page.'&class='.$index.'&sid='.$id.'&action=edit_stud" class="links">Edit</a></li> 
-                                <li><a href="?page=homepage&type=classes&subpage='.$page.'&class='.$index.'&sid='.$id.'&action=del_stud" onclick="return confirm(\'Are you sure you want to delete?\')" class="links">Delete</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="each_row">
-                        <div class="father_name">S/O '.$father.'</div>
-                    </div>
-                    <div class="each_row">
-                        <div class="action_box"><a href="index.php?page=homepage&subpage='.$page.'&class='.$index.'&sid='.$id.'&result=true">Results</a></div>
-                        <div class="action_box"><a href="index.php?page=homepage&subpage='.$page.'&class='.$index.'&sid='.$id.'&remarks=true">Remarks</a></div>
-                        <div class="action_box"><a href="index.php?page=homepage&subpage='.$page.'&class='.$index.'&sid='.$id.'&message=true">Messages</a></div>
-                    </div>
-                </div>
-           </div>
-          
-          ';
+      function highlightsuccess($msg=''){
+        return '<div class="ui-widget">
+        <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
+        <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+        <strong>Success!</strong> '.$msg.'</p>
+        </div>
+        </div>';
       }
       
-      function geteditclassbox($priority = '', $cl_name = '', $class = ''){
-          $a = '';
-          
-          $box='<div id="classbox">';
-          $box.='<ul class="class_box">';
-                      if(is_array($class)){
-                          $i = 1;
-                          foreach($class as $id=>$name){
-                              $a .= '<li>
-                                        <input type="hidden" name="section_id_'.$i.'" id="section_id_'.$i.'" value="'.$id.'" placeholder="Section '.$i.'"/>
-                                        <input type="text" name="section_name'.$i.'" id="section_name'.$i.'" value="'.$name.'" placeholder="Section '.$i.'"/>
-                                     </li>';
-                              $i++;
-                          }
-                      }else{
-                          $a = '<li><input type="text" name="section_name1" id="section_name1" placeholder="Section 1"></li>';
-                      }
-          $box .= '<li>
-                    <div class="class_level">
-                        <input type="text" placeholder="Priority" name="priority" value="'.$priority.'">
-                    </div>
-                    <div class="class_name">
-                        <input type="text" placeholder="Class Name" name="class_name" value="'.$cl_name.'">
-                    </div>
-                    <ul class="class_section">
-                        '.$a.'
-                    </ul>
-                    <div class="addsection"><div class="section_count" style="display: none;">'.($i-1).'</div><a href="#" onclick="addsection(this);return false;">Add New Section</a></div>
-                    <div><input type="submit" value="Update Class" style="font-size: 16px; border:0px; border-top: 1px solid; cursor:pointer; height:36px; width:200px"/></div>
-                  </li>';
-          $box .='<ul></div>';
-          $box .='<script>
-                          function addclass(id){
-                              var li = \'<li><div class="class_level"><input type="text" placeholder="Priority" name="priority"></div><div class="class_name"><input type="text" placeholder="Class Name" name="class_name"></div><ul class="class_section"><li><input type="text" name="section_name1" id="section_name1" placeholder="Section 1"></li><li><input type="text" name="section_name2" id="section_name2" placeholder="Section 2"></li></ul><div class="addsection"><div class="section_count" style="display: none;">2</div><a href="#" onclick="addsection(this);return false;">Add Section</a></div></li>\';
-                              var ul = $(id).closest(\'div#classbox\').find(\'ul.class_box\');
-                              $(ul).append(li);
-                          }
-                          
-                            function addsection(id){
-                                var sec = parseInt($(id).parent().find(\'.section_count\').html());
-                                sec = sec + 1;
-                                $(id).parent().find(\'.section_count\').html(sec);
-                                var li = \'<li><input type="text" name="section_name\'+sec+\'" id="section_name\'+sec+\'" placeholder="Section \'+sec+\'"></li>\';
-                                var ul = $(id).closest(\'li\').find(\'ul.class_section\');
-                                $(ul).append(li);
-                            }
-                 </script>';
-          return $box;
+      function highlighterror($msg=''){
+        return '<div class="ui-widget">
+        <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+        <strong>Alert:</strong> '.$msg.'</p>
+        </div>
+        </div>';
       }
-      
-      function getdeleteclassbox($priority = '', $cl_name = '', $class = ''){
-          $a = '';
-          
-          $box='<div id="classbox">';
-          $box.='<ul class="class_box">';
-                      if(is_array($class)){
-                          foreach($class as $id=>$name){
-                              $a .= '<li><div style="background: #fff; border: 1px dotted; margin: 10px; padding: 10px; width: auto; float: left">'.$name.'<a href="?page=homepage&type=classes&subpage=classes&class_name='.$cl_name.'&section='.$name.'&class_id='.$id.'&deleteclass=true" style="padding-left: 10px;" onclick="return confirm(\'Are you sure, you want to delete this section?\')"><img src="images/delete_icon.gif"/></a></div></li>';
-                          }
-                      }
-          $box .= '<li>
-                    <div class="class_level">
-                        <div style="border: 1px solid #000; background: #fff; padding: 7px">'.$priority.'</div>
-                    </div>
-                    <div class="class_name">
-                        <div style="border: 1px solid #000; background: #fff; padding: 7px">'.$cl_name.'</div>
-                    </div>
-                    <ul class="class_section">
-                        '.$a.'
-                    </ul>
-                    <a href="?page=homepage&type=classes&subpage=classes&class_name='.$cl_name.'&action=delete_class" onclick="return confirm(\'Are you sure you want to delete this class?\r\nAll student records associated with this class will be deleted.\')">
-                    <div style="padding: 7px; border-top: 1px solid #000; width: auoto; text-align: center">Delete Class</div>
-                    </a>
-                  </li>';
-          $box .='<ul></div>';
-        
-          return $box;
-      }
+
+
   }
 ?>

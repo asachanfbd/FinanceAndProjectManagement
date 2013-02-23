@@ -13,7 +13,7 @@
         $accounts .= $view->getformfields('Type of account', 'select', 'account_type', 'Type of account Cash/Bank', $acc_type);
         $accounts .= $view->getformfields('', 'submit', 'addnewaccount', '', 'Save');
         $accounts = $view->getform($id, 'addaccount', $accounts);
-        echo $view->getcmsbox('Accounts', $accounts, 'Add a new account where company funds are managed and kept for use.');
+        $body .= $view->getcmsbox('Accounts', $accounts, 'Add a new account where company funds are managed and kept for use.');
         
     /**
     * Accounts Form Completed

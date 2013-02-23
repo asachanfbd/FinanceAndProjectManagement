@@ -16,7 +16,11 @@
       //navigation of different accounts
           $nav['dashboard'] = 'Dashboard';
           $nav['addaccount'] = 'Add Account';
-          $nav['executives'] = 'Executives';
+          $nav['adddebt'] = 'Add Debt';
+          $nav['addexpenses'] = 'Add Expenses';
+          $nav['addincome'] = 'Add Income';
+          $nav['companyname'] = 'Company Name';
+          $nav['finance'] = 'Finance';
           $nav['profiles'] = 'Account Settings';
       $data['pagetitle'] = $nav[$subpage];
       if($user->iflogin()){

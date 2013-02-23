@@ -30,7 +30,7 @@
         $expense = "You can't make expense. There is no balance in any of our accounts.";
     }
     
-    echo $view->getcmsbox('Expenses', $expense, 'Add company expenses here with as much details as available.');
+    $body .= $view->getcmsbox('Expenses', $expense, 'Add company expenses here with as much details as available.');
     /**
     * Expenses Form Completed
     */

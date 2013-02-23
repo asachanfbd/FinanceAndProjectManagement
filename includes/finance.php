@@ -1,4 +1,5 @@
-<style>
+<?php
+    $body .= '<style>
 .quicknav{
     list-style-type: none;
     margin:0px;
@@ -25,7 +26,7 @@
 
 <div class="box-bg">
     <ul class="quicknav">
-<?php
+';
     $q = "SELECT * FROM ci_finance_accounts";
     $re = $db->querydb($q);
     if($re->num_rows > 0){
@@ -140,17 +141,17 @@
         * Income Summary: End
         */
         
-        echo '<li>'.$income_summary.'<a href="?id=addincome">Add Income</a></li>';
+        $body .= '<li>'.$income_summary.'<a href="?id=addincome">Add Income</a></li>';
         if($re->balance > 0){
-            echo '<li>'.$expense_history.'<a href="?id=addexpenses">Add Expenses</a></li>';
-            echo '<li>'.$debt_summary.'<a href="?id=adddebt">Add Debt</a></li>';
+            $body .= '<li>'.$expense_history.'<a href="?id=addexpenses">Add Expenses</a></li>';
+            $body .= '<li>'.$debt_summary.'<a href="?id=adddebt">Add Debt</a></li>';
         }else{
-            echo '<li>No funds present in any of the account add some funds first.</li>';
+            $body .= '<li>No funds present in any of the account add some funds first.</li>';
         }
     }else{
-        echo '<li>Add atleast one account to start.</li>';
+        $body .= '<li>Add atleast one account to start.</li>';
     }
-    echo '<li>'.$acc_summary.'<a href="?id=addaccount">Add Account</a></li>';
+    $body .= '<li>'.$acc_summary.'<a href="?id=addaccount">Add Account</a></li>';
+    $body .= '    </ul>
+</div>';
 ?>
-    </ul>
-</div>

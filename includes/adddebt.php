@@ -25,7 +25,7 @@
         $expense = "You can't debt money. There is no balance in any of our accounts.";
     }
     
-    echo $view->getcmsbox('Debt', $expense, 'Add debtor details here with as much details as available. Payment for the delivered service can also be added here.');
+    $body .= $view->getcmsbox('Debt', $expense, 'Add debtor details here with as much details as available. Payment for the delivered service can also be added here.');
     /**
     * Expenses Form Completed
     */

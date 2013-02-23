@@ -9,14 +9,16 @@
       
       private static $temp_info = '';
       
+      
+      
       public function iflogin(){
           global $db;
           if(isset($_COOKIE['ls']) && !self::$loginstatus){
               $ro = $this->getsessioninfo($_COOKIE['ls']);
               if($ro->expire <= time()){
-                  $db->delete('users_sessions', "sessionid = '".$_COOKIE['ls']."'");
-                  setcookie('ls', 'delete', 123);
+                  $this->logout($_COOKIE['ls']);
               }else{
+                  $this->refreshlogin($_COOKIE['ls']);
                   self::$loginstatus = TRUE;
                   self::$user = $db->querydb("SELECT 
                                                 users_info.id AS id, 
@@ -31,8 +33,19 @@
           return self::$loginstatus;
       }
       
+      public function logout($id){
+          global $db;
+          setcookie('ls',"",123);
+          $r = $db->update('users_sessions', array('expire' => time()-1), 'sessionid = "'.$id.'"');
+          if($r){
+              return true;
+          }
+          return false;  
+      }
+      
       private function getsessioninfo($sessionid){
-          $re = db::querydb("SELECT * FROM users_sessions WHERE sessionid = '".$sessionid."'");
+          global $db;
+          $re = $db->querydb("SELECT * FROM users_sessions WHERE sessionid = '".$sessionid."'");
           if($re->num_rows){
               while($ro = $re->fetch_object()){
                   return $ro;
@@ -143,7 +156,8 @@
           }
       }
       
-      public function setuser($fname, $lname, $email){
+      public function setuser($fname, $lname, $email,$val){
+          $val=$val;
           global $db;
           $id = md5($email);
           $password = substr(md5(rand(0,100).$id), 0, 8);
@@ -177,7 +191,7 @@
                         'email'     =>  $email,
                         'password'  =>  $password
           );
-          
+          $this->setpriviledge($val,$id);
           $this->usermail($values);
           /**
           * mail login credentials to user.
@@ -252,6 +266,46 @@
           return true;
       }
       
+      public function forgotpassword($email){
+          global $db;
+          $re=$db->querydb("select * from users_email where email ='".$email."'",true );
+             if($re){
+                 $id=$re->id;
+                 // print_r($re->id);
+                  $arr=substr(uniqid(), 0, 8);
+                  $value=md5($arr);
+                  $val=array(
+                    'password'    =>   $value
+                  );
+                  $subject="Password Recovery";
+                  $msg="Your Password is:".$arr;
+                  //echo $value;
+                  $q=$db->update('users_logininfo',$val,"id='".$id."'");
+                  if($q){
+                      mail($email,$subject,$msg);
+                      return true;
+                  }
+                  else{
+                      return false;
+                  }
+              }else{
+                  return false;
+              }
+      }
+      
+      public function contactformmail($value){
+          $to="manish12jes@gmail.com";
+          $msg=$value['msg'];
+          $header="From".$value['email'];
+          $subject="Query regarding trouble in login on universal pride";
+          if(mail($to,$subject,$msg,$header)){
+              return true;
+          }
+          else {
+              return true;
+          }
+      }
+      
       public function resetpassword($id){
           $values = array(
                         'name' => $this->getfullname(),
@@ -277,9 +331,8 @@
         $to = $values['email'];
         $temp = explode('.', $_SERVER['SERVER_NAME']);
         $hostname = $temp[count($temp) - 2] . '.' . $temp[count($temp) - 1];
-        $subject = 'Website Login Account Information';
-        $headers = "From: no-reply@braintouchonline.com\r\n";
-        $headers .= "CC: asachanfbd@gmail.com\r\n";
+        $subject = 'Universal Pride Interiors Login Account Information';
+        $headers = "From: no-reply@universalprideinteriors.com\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
         $message = '<html><body>';
@@ -288,9 +341,9 @@
         $message .= "<tr><td><strong>Name:</strong> </td><td>" . $values['name'] . "</td></tr>";
         $message .= "<tr><td><strong>Email:</strong> </td><td>" . $values['email'] . "</td></tr>";
         $message .= "<tr><td><strong>Password:</strong> </td><td>" . $values['password'] . "</td></tr>";
-        $message .= "<tr><td><strong>Login Link:</strong> </td><td><a href='http://braintouchonline.com/followups/'>http://braintouchonline.com/followups/</a></td></tr>";
+        $message .= "<tr><td><strong>Login Link:</strong> </td><td><a href='http://manage.universalprideinteriors.com//'>http://manage.universalprideinteriors.com/</a></td></tr>";
         $message .= "</table>";
-        $message .= "Please do not reply to this e-mail. For any queries contact <a href='mailto:asachanfbd@gmail.com'>asachanfbd@gmail.com</a>(Web Master)";
+        $message .= "Please do not reply to this e-mail. For any queries contact <a href='mailto:info@coravity.com'>info@coravity.com</a>";
         $message .= "</body></html>";
         if(mail($to, $subject, $message, $headers)){
             return true;
@@ -334,17 +387,58 @@
           }
       }
       
-      public function setpriviledge(){
-          
+      /**
+      * this will refresh the login time and expire time of given session.
+      * 
+      */
+      function refreshlogin($id){
+            global $db;
+            setcookie("ls",$id,time()+3600);
+            $r=$db->update('users_sessions',array('expire' =>time()+3600),'sessionid="'.$id.'"');
+            if($r){
+                return true;
+            }
+            else{
+                return false;
+            }
       }
       
-      public function getusertype(){
+      public function setpriviledge($valar,$id){
+          global $db;
+          $vls=implode(",",$valar);
+          $array = array(
+                'id'    =>  $id,
+                'permissions'=>$vls
+          );
+          $q = $db->insert('users_priviledge', $array);
+        
+         return true;
+      }
+      
+      public function haspermission($permission,$id){
+          global $db;
+          if($id=='superadmin'){
+              return true;
+          }
+          $q="SELECT * from users_priviledge where id='".$id."'";
+          $ro=$db->querydb($q);
+          if($ro->num_rows){
+              while($r=$ro->fetch_object()){
+              $val=explode(",",$r->permissions);
+          }
+          //print_r($val);
+           if(in_array($permission,$val)){
+              return true;
+          }
+          }
+         else{
+              return false;
+          } 
           
       }
       /**
       * TODO: Test above all the functions and create something for handling notification & priviledge(add more & delete old)
       */
-      
   }
   
   

@@ -21,7 +21,7 @@
         
         $income .= $view->getformfields('', 'submit', 'addnewincome', '', 'Save');
         $income = $view->getform($id, 'addincome', $income);
-        echo $view->getcmsbox('Income', $income, 'Add income to the company with as much details as available.');
+        $body .= $view->getcmsbox('Income', $income, 'Add income to the company with as much details as available.');
     /**
     * Income Form Completed
     */

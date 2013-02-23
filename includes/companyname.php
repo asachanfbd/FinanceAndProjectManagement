@@ -1,5 +1,5 @@
             <?php
-            $data = '<form action="controller.php" method="post" class="ajaxsubmitform">
+            $data1 = '<form action="controller.php" method="post" class="ajaxsubmitform">
             <input type="hidden" value="companyname" name="page" id="page">
             <input type="hidden" value="addnew" name="type" id="type">
             <input type="hidden" value="" name="ajaxrequest" id="ajaxrequest">
@@ -16,7 +16,7 @@
                 </table>
             </form>';
             
-        echo $view->getcmsbox('Add New Name', $data, 'Write the name in header and meaning+description in body part.');
+        $body .= $view->getcmsbox('Add New Name', $data1, 'Write the name in header and meaning+description in body part.');
         $rows = array();
         $re = $db->querydb("SELECT * FROM companyname");
         $status = 'read';
@@ -29,5 +29,5 @@
             $rows[] = 'No company exists to followup.';
         }
         
-        echo $view->getcmsbox('Current Names', $rows, 'Click on the above name to see complete discussion.');
+        $body .= $view->getcmsbox('Current Names', $rows, 'Click on the above name to see complete discussion.');
     ?>
