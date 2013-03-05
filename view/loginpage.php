@@ -6,6 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="styles/afterlogin.css">
     <script src="js/jquery-1.8.3.js"></script>
+    <script src="js/jquery.dataTables.min.js"></script>
 </head>
 <body>
     [#:@`loginbar`]

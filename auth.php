@@ -14,7 +14,7 @@
       header("Location: index.php");
       //echo 'logged in.';
   }else{
-      //header('Location: index.php?error=Error in Login Credentials');
-      echo 'not logged in.';
+      header('Location: index.php?error=Error in Login Credentials');
+      //echo 'not logged in.';
   }
 ?>

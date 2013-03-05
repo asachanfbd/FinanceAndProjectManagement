@@ -13,13 +13,10 @@
       }else{
           $subpage = 'dashboard';
       }
+      $id = $subpage;
       //navigation of different accounts
           $nav['dashboard'] = 'Dashboard';
-          $nav['addaccount'] = 'Add Account';
-          $nav['adddebt'] = 'Add Debt';
-          $nav['addexpenses'] = 'Add Expenses';
-          $nav['addincome'] = 'Add Income';
-          $nav['companyname'] = 'Company Name';
+          $nav['projects'] = 'Projects';
           $nav['finance'] = 'Finance';
           $nav['profiles'] = 'Account Settings';
       $data['pagetitle'] = $nav[$subpage];
@@ -31,7 +28,7 @@
       require_once('includes.php');
       $data['mainbody'] = $body;
       $profiler->add('Completed executing includes.php');
-      $data['footer'] = 'Copyright &copy; 2012 Bitumode. Powered By <a style="text-decoration: none; color: inherit;" href="http://www.coravity.com/" target="_blank">Coravity Infotech</a>';
+      $data['footer'] = 'Copyright &copy; 2012 <a style="text-decoration: none; color: inherit;" href="http://www.coravity.com/" target="_blank">Coravity Infotech</a>';
       echo $view->htmlframe($data, $page);
   }
   else{

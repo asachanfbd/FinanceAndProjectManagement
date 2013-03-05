@@ -205,7 +205,6 @@
             .logo{
                 max-height: 100px;
                 max-width: 320px;
-                display:none
             }
         </style>
         <title>
@@ -216,7 +215,7 @@
     <div class="login_main">
         <div class="login_body">
              <div class="login_body_form">
-                 <img src="images/coravity.png" alt="Coravity Infotech" class="logo">
+                 <img src="images/logofinal.png" alt="Coravity Infotech" class="logo">
                  <div id="error" style="color: red; margin-top: 30px;">
                     <?php
                         if(isset($_GET['error'])){

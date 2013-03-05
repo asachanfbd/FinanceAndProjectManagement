@@ -10,20 +10,11 @@
   date_default_timezone_set('Asia/Calcutta');
   
   /*PHP class inclusions*/  
+  require_once('commonfunctions.php');
   require_once('profiler.php');
   require_once('stats.php');
   require_once('db.php');
   require_once('error.php');
-  require_once('pages.php');
-  require_once('view.php');
-  require_once('commonfunctions.php');
-  
-  /*PHP file inclusion contains table name with structures*/
-  require_once('mysql.php');
-  require_once('user.php');
-
-  $profiler=new profiler(FALSE);
-
   //$host=''; /*host name*/
   $uname=''; /*user name*/
   $pass=''; /*password*/
@@ -38,6 +29,18 @@
   else{
       $db=new db($dbname, $host, $uname, $pass);/*initialization in case of server is not on localhost*/
   }
+  
+  $profiler=new profiler(FALSE);
+  
+  
+  require_once('pages.php');
+  require_once('view.php');
+  
+  /*PHP file inclusion contains table name with structures*/
+  require_once('mysql.php');
+  require_once('user.php');
+
+
   
   /*Object Instantiation for classes*/
   $error=new error();

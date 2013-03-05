@@ -41,8 +41,9 @@
               $listpage = array('adddebt', 'addincome', 'addexpenses', 'addaccount');
               if(in_array($page, $listpage)){
                   header('Location: index.php?id=finance');
+              }else{
+                  echo json_encode($a, JSON_HEX_QUOT | JSON_HEX_TAG);
               }
-              //echo json_encode($a, JSON_HEX_QUOT | JSON_HEX_TAG);
           }
           
       }else{

@@ -138,6 +138,9 @@
               $c3 = '<input type="'.$type.'" class="clview_input showhelp" name="'.$name.'" id="'.$name.'" value="'.$value.'" placeholder="'.$placeholder.'" >';
               }
           }
+          elseif($type == 'date'){
+              $c3 = '<input type="text" class="clview_input showhelp datepicker" name="'.$name.'" id="'.$name.'" value="'.$value.'" placeholder="'.$placeholder.'" >';
+          }
           elseif($type == 'select'){
               $c3 = '<select name="'.$name.'"  class="clview_input">';
               foreach($value as $k => $v){
@@ -316,326 +319,6 @@
           }
       }
       
-      function createresulttbl($examid){
-          global $db, $exam_obj;
-          $tbl = '';
-          $rows = array();
-          $re = $db->querydb("SELECT * FROM  bt_inst_exam WHERE exam_id = '".$examid."' AND date_of_exam < ".time());
-          if($re->num_rows){
-              $rows['subject_name'] = '<tr style="background:#eee;"><td>Subject Name</td>';
-              $rows['marks_max'] = '<tr style="background:#eee;"><td>Max. Marks</td>';
-              $rows['grades'] = '<tr style="background:#eee;"><td>Grades</td>';
-              $rows['marks_passing'] = '<tr><td>Passing Marks</td>';
-              $subject_name = array();
-              $subject_id = array();
-              $marks_max = array();
-              $marks_pass = array();
-              $j = 0;
-              // getting all the subjects
-              while($ro = $re->fetch_object()){
-                  $subject_id[] = $ro->exam_sub_id;
-                  $marks_max[] = $ro->marks_max;
-                  $marks_pass[] = $ro->marks_passing;
-                  $rows['subject_name'] .= '<td class="rotate">'.$ro->subject_name.'<input type="hidden" id="sub'.$j.'" name="sub'.$j.'" value="'.$subject_id[$j].'"></td>';
-                  $rows['marks_max'] .= '<td class="center">
-                                            '.$ro->marks_max.'
-                                            <input type="hidden" id="max'.$ro->exam_sub_id.'" name="max'.$ro->exam_sub_id.'" value="'.$ro->marks_max.'">
-                                         </td>';
-                  $rows['marks_passing'] .= '<td class="center">'.$ro->marks_passing.'</td>';
-                  $tgrade = '';
-                  if($ro->grades == 'grade'){
-                      $tgrade = ' checked="checked"';
-                  }
-                  $rows['grades'] .= '<td class="center"><input type="checkbox" name="grade'.$ro->exam_sub_id.'" id="grade'.$ro->exam_sub_id.'" '.$tgrade.'></td>';
-                  $inst_id = $ro->inst_id;
-                  $class = $ro->class;
-                  $j++;
-              }
-              $rows['subject_name'] .= '</tr>';
-              $rows['marks_max'] .= '</tr>';
-              $rows['marks_passing'] .= '</tr>';
-              $rows['grades'] .= '</tr>';
-              //getting all student's marks
-              $r = $db->querydb("SELECT * FROM bt_st_info WHERE inst_id = '".$inst_id."' && class = '".$class."'");
-              $j = 0;
-              
-              if($r->num_rows){
-                  $tbl .= '<table class="roundedcornertable">';
-                  $tbl .= $rows['subject_name'].$rows['marks_max'].$rows['grades'].$rows['marks_passing'];
-                  while($ro = $r->fetch_object()){
-                      $tr = '<tr>';
-                      $tr .= '<td>'.$ro->name.'<input type="hidden" id="st'.$j.'" name="st'.$j.'" value="'.$ro->id.'"></td>';
-                      for($i = 0; $i<count($subject_id); $i++){
-                          
-                          $tr .= '<td><input size="3" value="'.$exam_obj->ifresultexists($examid, $ro->id, $subject_id[$i]).'" class="inputresultbox" type="number" data-pass="'.$marks_pass[$i].'" data-min="0" data-max="'.$marks_max[$i].'" id="'.$ro->id.'_'.$subject_id[$i].'" name="'.$ro->id.'_'.$subject_id[$i].'"></td>';
-                          //DONE: develop a JS to detect the failed student status and change the field background to red and also the range if exceeded then stop.
-                      }
-                      $tr .= '</tr>';
-                      $tbl .= $tr;
-                      $j++;
-                  }
-                  
-                  $tbl .= '<tr class="actionbar"><td colspan="'.($i+1).'">';
-                  $tbl .= '<input type="hidden" name="exam_id" id="exam_id" value="'.$examid.'">';
-                  $tbl .= '<div class="right"><input type="submit" value="Save"><input type="reset"></div></td></tr>';
-                  $tbl .= '</table>';
-                  //showing declare button only if result completed but not declared.
-                  if($exam_obj->checkresults($examid) && !$exam_obj->ifresultdeclared($examid)){
-                      $tbl .= '<input type="button" class="button declareresult" id="'.$examid.'" value="Declare Result">';
-                  }
-                  $result = $this->getform('results', 'addresults', $tbl);
-              }
-          }
-          if(!isset($result)){
-              return FALSE;
-          }
-          return "<div style='float:left;'>".$result."</div><div style='float:left;'><pre>
-          Use Grades As follows:
-            97 => 'A1',
-            86 => 'A2',
-            81 => 'B1',
-            71 => 'B2',
-            66 => 'C1',
-            56 => 'C2',
-            52 => 'D',
-            51 => 'D1',
-            41 => 'D2',
-            37 => 'E',
-            29 => 'E1',
-            17 => 'E2'
-          </pre></div>";
-      }
-      
-      function piechart($marks){
-          $grade = array(
-            'ap'    =>0,
-            'a'     =>0,
-            'b'     =>0,
-            'c'     =>0,
-            'd'     =>0
-          );
-          foreach($marks as $v){
-              $v = round($v);
-              if($v >= 90){
-                  $grade['ap']++;
-              }elseif($v >= 75 && $v < 90){
-                  $grade['a']++;
-              }elseif($v >= 55 && $v < 75){
-                  $grade['b']++;
-              }elseif($v >= 35 && $v < 55){
-                  $grade['c']++;
-              }else{
-                  $grade['d']++;
-              }
-          }
-          $id = uniqid();
-          $js = '
-              function fn'.$id.'(){
-                var data = new google.visualization.DataTable();
-                data.addColumn("string", \'Topping\');
-                data.addColumn(\'number\', \'Slices\');
-                data.addRows([
-                  [\'Grade A+ (Above 90%)\', '.$grade['ap'].'],
-                  [\'Grade A (75% - 90%)\', '.$grade['a'].'],
-                  [\'Grade B (55% - 75%)\', '.$grade['b'].'],
-                  [\'Grade C (35% - 55%)\', '.$grade['c'].'],
-                  [\'Grade D (35% and Below)\', '.$grade['d'].']
-                ]);
-
-                var options = {
-                  title: "Grades achieved in This session"
-                };
-
-                var chart = new google.visualization.PieChart(document.getElementById("'.$id.'"));
-                chart.draw(data, options);
-              }
-              ';
-          $this->makegraphs('fn'.$id, $js);
-          return '
-          <div class="grid1">
-              <div id="'.$id.'" class="grid2"></div>
-              <div class="grid2 graphcontent">
-                <div>
-                    <h3>Grades Achieved in this session</h3>
-                    <p>This pie chart represents in term of percentage that what grades are more consistent in performance of the student.</p>
-                    <p>It is divided into sections of different Grades. Each grade is represented with a specific colour.</p>
-                    <p>If the area of a colour is more that means the student is consistently getting that grade in exams.</p>
-                </div>
-              </div>
-          </div>';
-      }
-      
-      function makexygraph($max, $current, $min, $examname, $grapname = ''){
-          $id = uniqid();
-          static $position = 'right';
-          $js = '
-              function fn'.$id.'(){
-                // Create and populate the data table.
-                  var data = google.visualization.arrayToDataTable([
-                    [\'x\', \'Maximinum Marks Scored\', \'Marks Scored by Your Child\', \'Minimum Marks Scored\'],';
-          if(count($max) == count($min) && count($min)  == count($current)){
-              foreach($current as $k => $v){
-                  $js .= '
-                  ["'.$examname[$k].'", '.$max[$k].', '.$current[$k].', '.$min[$k].'],';
-              }
-          }
-          
-          echo '<script type="text/javascript">alert("'.$js.'");</script>';
-          
-          if($grapname == ''){
-              $grapname = 'Student Performance Graph';
-              $details = '<p>This graph represents the performance of the students according to the marks achieved by him in respective exams.</p>
-                        <p>It represents the three types of marks. These marks are represented by the specific colours. </p>
-                        <p><strong>Blue Line:</strong> Maximum marks scored in any exam.<br>
-                        <strong>Orange:</strong> Minimum marks scored in any exam.<br>
-                        <strong>Red:</strong> Marks obtained by your child in any exam.</p>';
-          }else{
-              $details = '<p>This graph gives performance of student in given exam.</p>
-                        <p><strong>Blue Line:</strong> Maximum marks scored in any exam.<br>
-                        <strong>Orange:</strong> Minimum marks scored in any exam.<br>
-                        <strong>Red:</strong> Marks obtained by your child in any exam.</p>';
-          }
-          $js .= '
-                  ]);
-
-                  // Create and draw the visualization.
-                  new google.visualization.LineChart(document.getElementById("'.$id.'")).
-                      draw(data, {
-                                      curveType: "function",
-                                      title: "'.$grapname.'"
-                                 }
-                          );
-              }';
-          $this->makegraphs('fn'.$id, $js);
-          //return '<div id="'.$id.'" class="grid2"></div>';
-          if($position == 'left'){
-              $position = 'right';
-              return '
-              <div class="grid1">
-                  <div id="'.$id.'" class="grid2"></div>
-                  <div class="grid2 graphcontent">
-                    <div>
-                        <h3>'.$grapname.'</h3>
-                        '.$details.'
-                    </div>
-                  </div>
-              </div>';
-          }elseif($position == 'right'){
-              $position = 'left';
-              return '
-              <div class="grid1">
-                  <div class="grid2 graphcontent">
-                    <div>
-                        <h3>'.$grapname.'</h3>
-                        '.$details.'
-                    </div>
-                  </div>
-                  <div id="'.$id.'" class="grid2"></div>
-              </div>';
-          }
-          
-      }
-      
-      function makegraphs($add = '', $fn = ''){
-          static $str2 = '';
-          static $str4 = '';
-          static $str1 = '
-          <script type="text/javascript">
-          
-                      $(document).load(function(){
-                            //drawallgraphs();
-                      });
-                      
-                      function drawallgraphs(){
-          ';
-          static $str3 = '
-                      }';
-          static $str5 = '</script>';
-          
-          if($add != ''){
-              $str2 .= $add.'();';
-          }
-          
-          if($fn != ''){
-              $str4 .= $fn.'
-              ';
-          }
-          //
-          $str6 = '
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-            <script type="text/javascript">
-                    google.load("visualization", "1", {packages:["corechart"]});
-                    google.setOnLoadCallback(drawallgraphs);
-            </script>';
-          if($add == '' && $str2 != ''){
-              return $str1.$str2.$str3.$str4.$str5.$str6;
-          }
-      }
-      
-      function makesubjectgraph($subjects){
-          $data = '[\'Exams\', \''.implode('\', \'', $subjects['subject_names']).'\']';
-          foreach($subjects as $k => $v){
-              if($k != 'subject_names'){
-                  $data .= ',
-                  [\''.$k.'\'';
-                  foreach($subjects['subject_names'] as $v1){
-                      if(!isset($subjects[$k][$v1])){
-                          $subjects[$k][$v1] = 0;
-                      }
-                      $data .= ', '.$subjects[$k][$v1];
-                  }
-                  $data .= ']';
-              }
-          }
-          $id = uniqid();
-          $js = '
-              function fn'.$id.'(){
-                // Some raw data (not necessarily accurate)
-                var data = google.visualization.arrayToDataTable([
-                  '.$data.'
-                ]);
-
-                var ac = new google.visualization.ComboChart(document.getElementById("'.$id.'"));
-                ac.draw(data, {
-                    title : \'Subject Wise Performance\',
-                    vAxis: {title: "Marks"},
-                    hAxis: {title: "Exams and Subjects"},
-                    seriesType: "bars",
-                    series: {5: {type: "line"}}
-                  });
-                
-              }
-          ';
-          $this->makegraphs('fn'.$id, $js);
-          return '<div id="'.$id.'" class="grid1"></div>';
-      }
-      
-      function getremarksbox($to, $for){
-         global $user;
-         $remarksform = $this->getformfields("Title", 'text', 'remarkstitle', 'Enter the title of you remarks - one liner brief');
-         $remarksform .= '<input type="hidden" name="remarksfrom" id="remarksfrom" value="'.$user->getid().'">'."\n";
-         $remarksform .= '<input type="hidden" name="remarksto" id="remarksto" value="'.$to.'">'."\n";
-         $remarksform .= '<input type="hidden" name="remarksfor" id="remarksfor" value="'.$for.'">'."\n";
-         $remarksform .= '<input type="hidden" name="remarkstype" id="remarkstype" value="remarks">'."\n";
-         $remarksform .= $this->getformfields("Remark", 'textarea', 'remarksbody', 'Enter your message in detail.');
-         $remarksform .= $this->getformfields('', 'submit', 'remarksubmit', '', 'Send');
-         $remarksform = $this->getform('remarks', 'newremark', $remarksform);
-         return $this->getcmsbox('Send Remarks to institution', $remarksform, '');
-      }
-      
-      function getremarksreplybox($id, $to){
-         global $user;
-         $remarksform = '<input type="hidden" name="remarksid" id="remarksid" value="'.$id.'">'."\n";
-         $remarksform .= '<input type="hidden" name="remarksto" id="remarksto" value="'.$to.'">'."\n";
-         $remarksform .= '<input type="hidden" name="remarkstype" id="remarkstype" value="remarks">'."\n";
-         $remarksform .= '<div class="remarksreplybox">
-         <div class="left"><textarea id="remarksreplybody" name="remarksreplybody"></textarea></div>'."\n";
-         $remarksform .= '
-         <div class="left"><input type="submit" id="remarksubmit" name="remarksubmit" value="Reply"></div></div>'."\n";
-         return $this->getform('remarks', 'replyremark', $remarksform);
-         //return $this->getcmsbox('Send Remarks to institution', $remarksform, '');
-      }
-      
       function usernamechangebox(){
           global $user;
           $d = $this->getformfields('New Username', 'text', 'username', 'Put your email id here.');
@@ -669,7 +352,47 @@
         </div>
         </div>';
       }
-
-
+      
+      function createbluebox($title, $info = '', $notif = ''){
+          $d = '';
+          if(is_array($info)){
+              foreach($info as $v){
+                  $d .= '
+                        <div class="bluebox_info nowrap" title="'.strip_tags($v).'">
+                            '.$v.'
+                        </div>
+                        ';
+              }
+          }elseif($info != ''){
+              $d .= '
+                        <div class="bluebox_info nowrap" title="'.strip_tags($info).'">
+                            '.$info.'
+                        </div>
+                        ';
+          }
+          if(is_array($notif)){
+              foreach($notif as $v){
+                  $d .= '
+                        <div class="bluebox_notif" title="'.strip_tags($v).'">
+                            '.$v.'
+                        </div>
+                        ';
+              }
+          }elseif($notif != ''){
+              $d .= '
+                        <div class="bluebox_notif" title="'.strip_tags($notif).'">
+                            '.$notif.'
+                        </div>
+                        ';
+          }
+          $d = '
+              <div class="bluebox">
+                <div class="bluebox_title nowrap" title="'.strip_tags($title).'">
+                    '.$title.'
+                </div>
+                '.$d.'
+              </div>';
+        return $d;
+      }
   }
 ?>

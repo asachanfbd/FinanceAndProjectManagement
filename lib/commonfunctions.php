@@ -26,4 +26,13 @@ function calcreltime($date) {
 function getRelativeTime($ts){
     return "<span class='timeautoupdate' timestamp='".$ts."' title='".date("l, M d, Y", $ts)." at ".date("h:i A", $ts)."'>".calcreltime($ts)."</span>";
 }
+
+function ddmmyytounixtime($ddmmyy){
+    if($ddmmyy == ''){
+        return 0;
+    }
+    $temp_date = explode('-', $ddmmyy);
+    
+    return mktime(0, 0, 0, $temp_date[1], $temp_date[0], $temp_date[2]);
+}
 ?>

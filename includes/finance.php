@@ -141,17 +141,24 @@
         * Income Summary: End
         */
         
-        $body .= '<li>'.$income_summary.'<a href="?id=addincome">Add Income</a></li>';
+        $body1 = '<li>'.$income_summary.'<a href="?subpage=addincome">Add Income</a></li>';
         if($re->balance > 0){
-            $body .= '<li>'.$expense_history.'<a href="?id=addexpenses">Add Expenses</a></li>';
-            $body .= '<li>'.$debt_summary.'<a href="?id=adddebt">Add Debt</a></li>';
+            $body1 .= '<li>'.$expense_history.'<a href="?subpage=addexpenses">Add Expenses</a></li>';
+            $body1 .= '<li>'.$debt_summary.'<a href="?subpage=adddebt">Add Debt</a></li>';
         }else{
-            $body .= '<li>No funds present in any of the account add some funds first.</li>';
+            $body1 .= '<li>No funds present in any of the account add some funds first.</li>';
         }
     }else{
-        $body .= '<li>Add atleast one account to start.</li>';
+        $body1 .= '<li>Add atleast one account to start.</li>';
     }
-    $body .= '<li>'.$acc_summary.'<a href="?id=addaccount">Add Account</a></li>';
-    $body .= '    </ul>
+    $body1 .= '<li>'.$acc_summary.'<a href="?subpage=addaccount">Add Account</a></li>';
+    $body1 .= '    </ul>
 </div>';
+$links_arr = array( 
+        'Add Income'    => '?subpage=addincome',
+        'Add Debt'      => '?subpage=adddebt',
+        'Add an Account'   => '?subpage=addaccount',
+        'Add New Expenses'  => '?subpage=addexpenses'
+);
+$body .= $view->getcmsbox('Finance Summary', $body1, '', $links_arr);
 ?>

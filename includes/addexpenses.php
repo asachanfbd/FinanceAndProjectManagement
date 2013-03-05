@@ -2,6 +2,7 @@
   /**
     * Creating form for adding expenses to database.
     */
+    $data['pagetitle'] = 'Add Expenses';
     $q = "SELECT SUM(balance) as balance FROM ci_finance_accounts";
     $re = $db->querydb($q, true);
     if($re->balance > 0){
@@ -29,8 +30,13 @@
     }else{
         $expense = "You can't make expense. There is no balance in any of our accounts.";
     }
-    
-    $body .= $view->getcmsbox('Expenses', $expense, 'Add company expenses here with as much details as available.');
+    $links_arr = array( 
+        'Add Income'        => '?subpage=addincome',
+        'Add Debt'          => '?subpage=adddebt',
+        'Add an Account'    => '?subpage=addaccount',
+        'View Summary'   => '?subpage=finance'
+    );
+    $body .= $view->getcmsbox('Expenses', $expense, 'Add company expenses here with as much details as available.', $links_arr);
     /**
     * Expenses Form Completed
     */

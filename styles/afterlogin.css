@@ -262,6 +262,7 @@ ul.tabdata{
     list-style-type: none;
     margin: 0px;
     padding: 10px;
+    overflow: auto;
 }
 ul.tabdata li{
     overflow: auto;
@@ -443,6 +444,7 @@ footer{
 }
 footer>div{
     width:100%;
+    padding: 10px;
 }
 footer>div div{
     float: left;
@@ -904,3 +906,53 @@ footer a:hover{
     padding: 2px;
     float: left;
 }
+
+
+/**
+* to show blue boxes on projects page.
+*/
+.bluebox{
+    width: 260px;
+    height: 125px;
+    float: left;
+    padding: 10px;
+    margin: 10px;
+    background: #0059B2;
+    color: #fff;
+    font-size: 15px;
+    font-family: "Segoe UI";
+    position: relative;
+}
+.bluebox_title{
+    font-size: 30px;
+    font-weight: lighter;
+}
+.nowrap{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 1px;
+}
+.bluebox_notif{
+    background: #FFFF00;
+    display: inline-block;
+    padding: 1px 12px 2px;
+    color: #BB4122;
+    font-size: 12px;
+    border-radius: 0 0 5px 5px;
+    position: absolute;
+    bottom: -20px;
+    left: 10px;
+}
+.bluebox_info{
+    background: rgba(255,255,255, 0.2);
+    display: inline-block;
+    padding: 0px 12px 2px;
+    color: #fff;
+    font-size: 13px;
+    border-radius: 5px;
+    width: 90%;
+}
+/**
+* blue boxes css ends here
+*/

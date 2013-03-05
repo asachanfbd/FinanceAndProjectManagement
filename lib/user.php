@@ -441,5 +441,10 @@
       */
   }
   
+  if(isset($_GET['logout']) && isset($_COOKIE['ls'])){
+      $logmeout = new user();
+      $logmeout->logout($_COOKIE['ls']);
+      header("Location: index.php");
+  }
   
 ?>

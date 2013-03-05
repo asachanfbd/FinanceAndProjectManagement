@@ -1,6 +1,4 @@
-    <div class="box-bg">
-    <div>
-            <?php
+<?php
                 $rows = array();
                 $settings = array(
                             'fullname'  =>  array(
@@ -29,7 +27,5 @@
                 foreach($settings as $k=>$v){
                     $rows[] = $view->getcmsrow($id, $k, $v['name'], $v['content']);
                 }
-                echo $view->getcmsbox('Profile Information', $rows, 'Click on the above settings to edit.');
-            ?>
-    </div>
-    </div>
+                $body .= $view->getcmsbox('Profile Information', $rows, 'Click on the above settings to edit.');
+?>

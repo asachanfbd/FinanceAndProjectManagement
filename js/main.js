@@ -18,7 +18,7 @@
             //alert(d);
              $.post($(id).attr('action'), d, function(data){
                  innerboxloading(id);
-                 //alert(data);
+                 // alert(data);
                  var d = $.parseJSON(data);
                  if(d.error.length > 0){
                      //show error msg
@@ -30,66 +30,20 @@
                          $(id).closest('.tabdata').html(d.result);
                          $(t).delay(2000).slideUp(1000);
                      }
-                     if(d.success == 'vanishrowdelayed'){
-                         //alert(d.result);
-                         var t = $(id).closest('.tabrowcontentajaxresult');
-                         $(t).html(d.result);
-                         $(t).closest('li').delay(2000).slideUp(1000);
-                     }
                      else if(d.success == 'showresult'){
-                         //alert(d.result);
-                         var t = $(id).closest('.innerbox').parent().find('.resultbox');
-                         $(t).find('.tabdata').prepend(d.result);
-                         $(id)[0].reset();
-                     }
-                     else if(d.success == 'updateresultbox'){
-                         var par = $(id).closest('div.ajaxresult');
-                         var re = par.parent('li').children('.ajaxify');
-                         re.find('.tabrowcontent').html(d.result);
-                         par.hide();
-                         re.show();
-                         re.find(".successmsg").show();
-                         re.find('.tabrow').css('background', '#FFFFC0');
-                         re.find('.tabrow').animate({ backgroundColor: "#FFFFFF" }, 3000);
-                         re.find(".successmsg").fadeOut(2000);
-                     }
-                     else if(d.success == 'showconfirm'){
-                         var t = $(id).closest('.tabrowcontentajaxresult');
                          alert(d.result);
-                         $(t).html('<div class="showconfirm">'+d.result+'</div>');
                          $(id)[0].reset();
-                         $('#name').focus();
                      }
                      else if(d.success == 'alertnreload'){
                          alert(d.result);
                          $(id)[0].reset();
                          window.location.reload();
                      }
-                     else if(d.success == 'updateremarksreply'){
-                         var t = $(id).closest('.remarksconversation_container');
-                         //alert(d.result);
-                         $(t).find('.remarksconversation').append(d.result);
-                         $(id)[0].reset();
-                         $('#remarksreplybody').focus();
-                     }
-                     else if(d.success == 'sendmail'){
-                         alert(d.result);
-                         var t = $(id).closest('.mailform');
-                         $(t).html("<div style='text-align:center;'>"+d.result+"</div>");
-                     }
                      else if(d.success == 'showalert'){
                          alert(d.result);
                      }
-                     else if(d.success == 'addclassesupdate'){
-                         var pr = parseInt($(id).find('#priority').val());
-                         $(id)[0].reset();
-                         $(id).find('#priority').val(pr+1);
-                         $(id).find('input[name=class_name]').focus();
-                         $('.dbclasses').html(d.result.update);
-                         alert(d.result.result);
-                     }
                      else{
-                         alert('Message Sent');
+                         alert('Action Completed');
                          
                      }
                  }

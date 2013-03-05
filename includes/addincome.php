@@ -3,7 +3,7 @@
     /**
     * Creating form for adding income to database.
     */
-    
+    $data['pagetitle'] = 'Add Income';
         $income = '';
         $income .= $view->getformfields('Income Source', 'text', 'income_from', 'Enter description of income in one or two words.', '', 'Describe in one or two words');
         $income .= $view->getformfields('Amount', 'text', 'amount', 'Enter the amount spent in INR.', 0);
@@ -21,7 +21,14 @@
         
         $income .= $view->getformfields('', 'submit', 'addnewincome', '', 'Save');
         $income = $view->getform($id, 'addincome', $income);
-        $body .= $view->getcmsbox('Income', $income, 'Add income to the company with as much details as available.');
+        
+    $links_arr = array( 
+        'Add Debt'          => '?subpage=adddebt',
+        'Add an Account'    => '?subpage=addaccount',
+        'Add New Expenses'  => '?subpage=addexpenses',
+        'View Summary'   => '?subpage=finance'
+    );
+        $body .= $view->getcmsbox('Income', $income, 'Add income to the company with as much details as available.', $links_arr);
     /**
     * Income Form Completed
     */
