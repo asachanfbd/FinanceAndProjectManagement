@@ -1,7 +1,6 @@
 <?php
 
   require_once("lib/library.php");
-  
   $profiler->start(false); //passing true will start the profiler logging.
   $data = array();
   $page = '';
@@ -37,5 +36,7 @@
   
   $profiler->add('Loaded Html completely.');
   echo $profiler->display();
-  //this is test changes.
+  
+  
+  
 ?>
